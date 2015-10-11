@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="student_loan"
+        android:title="@string/pref_title_student_loan"
+        android:defaultValue="false" />
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:key="gross_salary"
+        android:title="@string/pref_title_gross_salary"
+        android:defaultValue="26500.00"
+        android:selectAllOnFocus="true"
+        android:inputType="numberDecimal"
+        android:singleLine="true"
+        android:maxLines="1" />
+
+    <EditTextPreference
+        android:key="weekly_hours"
+        android:title="@string/pref_title_weekly_hours"
+        android:defaultValue="40"
+        android:selectAllOnFocus="true"
+        android:inputType="numberDecimal"
+        android:singleLine="true"
+        android:maxLines="1" />
+
+</PreferenceScreen>
