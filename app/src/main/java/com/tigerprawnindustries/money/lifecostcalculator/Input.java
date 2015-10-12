@@ -20,11 +20,23 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.text.DecimalFormat;
+
 import static android.app.PendingIntent.getActivity;
 
 public class Input extends AppCompatActivity {
     private EditText enterNumber ;
     private TextView result ;
+
+    private String calculateLifeCost (Double cost){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        float grossSalary = Float.parseFloat(sharedPref.getString("gross_salary",  "0.0"));
+        float weeklyHours = Float.valueOf(sharedPref.getString("weekly_hours",  "0.0"));
+
+        Double lifeCost = cost/(grossSalary/(52*weeklyHours));
+        DecimalFormat df = new DecimalFormat("#.00");
+        return df.format(lifeCost);
+    }
 
     private final TextWatcher costWatcher = new TextWatcher() {
         @Override
@@ -34,13 +46,12 @@ public class Input extends AppCompatActivity {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
             if(s.length()>0) {
-                Float cost = Float.valueOf(s.toString());
-                Float lifeCost = cost * 2;
-                result.setText("Life cost: "+ lifeCost.toString() + " hrs");
+                Double cost = Double.valueOf(s.toString());
+                result.setText("Life cost: "+ calculateLifeCost(cost) + " hrs");
             } else {
-                result.setText(sharedPref.getString("gross_salary", ""));
+                result.setText("");
             }
         }
 
@@ -53,13 +64,15 @@ public class Input extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         setContentView(R.layout.activity_input);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        
+
+        //set class variables to point to fields
         enterNumber = (EditText)findViewById(R.id.enterNumber);
         result = (TextView)findViewById(R.id.result);
-
+        //add listener so that we can update the life cost immediately
         enterNumber.addTextChangedListener(costWatcher);
     }
 
