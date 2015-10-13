@@ -78,6 +78,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
+            //TODO refresh the main calculation when a value is changed
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in

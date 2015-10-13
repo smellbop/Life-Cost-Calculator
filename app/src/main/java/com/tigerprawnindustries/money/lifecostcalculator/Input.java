@@ -28,14 +28,71 @@ public class Input extends AppCompatActivity {
     private EditText enterNumber ;
     private TextView result ;
 
-    private String calculateLifeCost (Double cost){
+    private String getLifeCost (Double cost){
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        float grossSalary = Float.parseFloat(sharedPref.getString("gross_salary",  "0.0"));
-        float weeklyHours = Float.valueOf(sharedPref.getString("weekly_hours",  "0.0"));
+        double grossSalary = Double.valueOf(sharedPref.getString("gross_salary",  "0.0"));
+        double weeklyHours = Double.valueOf(sharedPref.getString("weekly_hours",  "0.0"));
 
-        Double lifeCost = cost/(grossSalary/(52*weeklyHours));
-        DecimalFormat df = new DecimalFormat("#.00");
-        return df.format(lifeCost);
+        double lifeCost = cost/getHourlyRate(grossSalary,weeklyHours);
+        return hoursMinutes(lifeCost);
+    }
+
+    /*
+    Returns a formatted sting in hours and minutes when given the hours as a double
+     */
+    private String hoursMinutes(double lifeCost){
+        String result ="";
+        int hours = (int)Math.floor(lifeCost);
+        int minutes = (int) Math.round((lifeCost - hours)*60);
+
+        if (hours>0){
+            result += hours + " hours and ";
+        }
+        result += minutes + " minutes";
+
+        return result;
+    }
+
+    private double calculateNetSalary(double grossSalary,boolean studentLoan){
+        int taxFree = 10600;
+        int tax20 = 31785;
+        int tax40 = 118215;
+        double netSalary = 0;
+
+        //TODO use correct values
+        //TODO tidy up calculation
+        //TODO add NI
+        //TODO add student loan
+        //TODO add pension
+        //TODO add options for yanks
+
+        if(grossSalary <= taxFree){
+            netSalary += grossSalary;
+        } else {
+            grossSalary -= taxFree;
+            netSalary += taxFree;
+            if(grossSalary <= tax20){
+                netSalary += 0.8*grossSalary;
+            } else {
+                grossSalary -= tax20;
+                netSalary += 0.8*tax20;
+                if(grossSalary <= tax40){
+                    netSalary += 0.6*grossSalary;
+                } else {
+                    grossSalary -= tax40;
+                    netSalary += 0.6*tax40;
+                    netSalary += 0.55*grossSalary;
+                }
+
+            }
+        }
+
+        return netSalary;
+    }
+
+    private double getHourlyRate(double grossSalary,double weeklyHours){
+        double netSalary=calculateNetSalary(grossSalary,false);
+        return netSalary/(weeklyHours*52.17);
     }
 
     private final TextWatcher costWatcher = new TextWatcher() {
@@ -48,8 +105,8 @@ public class Input extends AppCompatActivity {
         public void onTextChanged(CharSequence s, int start, int before, int count) {
 
             if(s.length()>0) {
-                Double cost = Double.valueOf(s.toString());
-                result.setText("Life cost: "+ calculateLifeCost(cost) + " hrs");
+                Double cost = Double.valueOf('0'+s.toString());
+                result.setText("Life cost: "+ getLifeCost(cost));
             } else {
                 result.setText("");
             }
